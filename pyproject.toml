@@ -1,0 +1,10 @@
+[project]
+name = "ygo_fm_modding_tools"
+version = "0.1.0"
+description = "A python project to facilitate moddings of ygo fm, especially card drops and opponents decks"
+dependencies = ["polars", "openpyxl", "pandas"]
+readme = "README.md"
+
+[build-system]
+requires = ["uv-pyproject"]
+build-backend = "uv.pyproject"
