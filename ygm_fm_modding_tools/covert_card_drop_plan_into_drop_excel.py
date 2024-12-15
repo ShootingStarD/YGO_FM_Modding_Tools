@@ -2,8 +2,11 @@ import openpyxl.workbook
 import polars as pl
 from polars import selectors as cs
 import openpyxl
-from pathlib import Path
 import logging
+
+from YGO_FM_Modding_Tools.ygm_fm_modding_tools.config import DATA_FOLDER
+
+CUSTOM_DROP_TEMPLATE = DATA_FOLDER / "update_drop_template.xlsx"
 
 
 def card_drop_plan_to_card_drop_proba(card_drop_plan: pl.DataFrame) -> pl.DataFrame:
@@ -75,13 +78,13 @@ def card_drop_proba_to_drop_template_excel(
     opponents.remove("Oponente*")
     # Define the starting row
     start_row = 6
-    print(card_drop_proba.columns)
+    logging.info(card_drop_proba.columns)
 
     for opponent_index in range(len(opponents)):
-        print(opponents[opponent_index])
+        logging.info(opponents[opponent_index])
         for rank in range(3):
             column_index = (4 * (opponent_index + 1)) + rank
-            print(sheet.cell(row=5, column=column_index).value)
+            logging.info(sheet.cell(row=5, column=column_index).value)
             proba = []
             for i, value in enumerate(
                 card_drop_proba[:, (((3 * (opponent_index)) + rank) + 2)].to_list(),
@@ -91,17 +94,16 @@ def card_drop_proba_to_drop_template_excel(
                 cell = sheet.cell(row=i, column=column_index, value=value)
                 if value != 0:
                     proba.append(cell.value)
-            print(proba)
+            logging.info(proba)
 
 
 if __name__ == "__main__":
-    data_folder = Path(__file__).parent.parent / "data"
-    card_drop_plan_path = data_folder / "Card_Drop_Plan.xlsx"
+    card_drop_plan_path = DATA_FOLDER / "Card_Drop_Plan.xlsx"
     df = pl.read_excel(card_drop_plan_path)
     logging.info("Convert card drop plan to card drop proba")
     card_drop_proba = card_drop_plan_to_card_drop_proba(df)
     card_drop_excel_template = openpyxl.load_workbook(
-        data_folder / "Drop_Rebalanced.xlsx"
+        DATA_FOLDER / "Drop_Rebalanced.xlsx"
     )
     logging.info("Convert card drop proba to template")
 
@@ -109,4 +111,4 @@ if __name__ == "__main__":
         card_drop_proba=card_drop_proba,
         card_drop_excel_template=card_drop_excel_template,
     )
-    card_drop_excel_template.save(data_folder / "update_drop_template.xlsx")
+    card_drop_excel_template.save(CUSTOM_DROP_TEMPLATE)
